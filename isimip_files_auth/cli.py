@@ -17,7 +17,7 @@ def main():
 @click.argument("path", type=str)
 def encode(subject, path):
     """Encode a token using a subject and a path."""
-    click.echo(encode_token(subject, path))
+    click.echo(encode_token(subject, [path]))
 
 
 @main.command()
