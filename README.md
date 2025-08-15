@@ -7,13 +7,7 @@ A lightweight JWT validation service for the ISIMIP Repository.
 Setup
 -----
 
-Clone the repo, e.g. to `/srv/www/auth`:
-
-```bash
-git clone https://github.com/ISI-MIP/isimip-files-auth /srv/www/auth
-```
-
-In **development**, create a `.env` file which contains the secret needed for encoding/decoding the JWT:
+In **development**, clone the repo and create a `.env` file which contains the secret needed for encoding/decoding the JWT:
 
 ```
 ISIMIP_FILES_AUTH_SECRET=super-secret
@@ -21,7 +15,29 @@ ISIMIP_FILES_AUTH_SECRET=super-secret
 
 The app can be run using `make`.
 
-In **production** create a Systemd service file:
+In **production** create a separate user:
+
+```bash
+useradd -m -u 2002 -s /bin/bash isimip-files-auth
+```
+
+Using this user, clone the repo, e.g. to `/srv/www/auth`:
+
+```bash
+git clone https://github.com/ISI-MIP/isimip-files-auth /srv/www/auth
+```
+
+Install the package in a virtual environment:
+
+```bash
+cd /srv/www/auth
+
+python3 -m venv env
+source env/bin/activate
+pip install -e .
+```
+
+Create a systemd service file:
 
 ```
 # in /etc/systemd/system/auth.service
@@ -55,7 +71,7 @@ ExecStart=/bin/sh -c '${GUNICORN_BIN} \
   --timeout ${GUNICORN_TIMEOUT} \
   --access-logfile ${GUNICORN_ACCESS_LOG_FILE} \
   --error-logfile ${GUNICORN_ERROR_LOG_FILE} \
-  "isimip_files_api.app:create_app()"'
+  isimip_files_auth.app:app'
 
 ExecReload=/bin/sh -c '/usr/bin/pkill -HUP -F ${GUNICORN_PID_FILE}'
 
